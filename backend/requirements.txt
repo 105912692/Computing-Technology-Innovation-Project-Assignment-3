@@ -1,0 +1,10 @@
+fastapi==0.143.0
+uvicorn==0.54.0
+pydantic==2.14.1
+python-dotenv==1.2.4
+scikit-learn==1.9.1
+numpy==2.5.3
+scipy==1.18.1
+joblib==1.6.0
+threadpoolctl==3.7.0
+narwhals==2.26.0
