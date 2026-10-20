@@ -1,6 +1,6 @@
 # Phishing URL Detection
 
-COS30049 Computing Technology Innovation Project, Assignment 3. A React front end and a FastAPI back end that say whether a URL is phishing or legitimate, with the model's confidence.
+COS30049 Computing Technology Innovation Project, Assignment 3. A React front end and a FastAPI back end that say whether a URL is phishing or benign, with the model's confidence.
 
 ```
 backend/                 FastAPI back end
@@ -24,21 +24,33 @@ frontend/                React front end (Vite)
 ## Setup and run
 Use two terminals, both starting in the project folder.
 
-### Back end
+### Back end: first time only
 ```powershell
 cd backend
-copy .env.example .env
-python -m venv .venv
+copy .env.example .env              # macOS/Linux: cp .env.example .env
+py -3.12 -m venv .venv              # macOS/Linux: python3.12 -m venv .venv
 .venv\Scripts\Activate.ps1          # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+Do not run the `venv` line again on an existing `.venv`: it switches the folder to whatever `python` is but keeps packages built for the old version, and the back end then fails to start (e.g. `ImportError ... pydantic_core`). To rebuild, delete `.venv` first (`Remove-Item -Recurse -Force .venv`).
+
+### Back end: every time
+```powershell
+cd backend
+.venv\Scripts\Activate.ps1          # macOS/Linux: source .venv/bin/activate
+uvicorn app.main:app --host 127.0.0.1 --port 8000   # add --reload while developing
 ```
 API documentation: http://127.0.0.1:8000/docs
 
-### Front end
+### Front end: first time only
 ```powershell
 cd frontend
 npm ci                      # installs the exact versions in package-lock.json
+```
+
+### Front end: every time
+```powershell
+cd frontend
 npm run dev                 # http://localhost:5173 (calls to /api are forwarded to the back end)
 ```
 
@@ -46,7 +58,7 @@ npm run dev                 # http://localhost:5173 (calls to /api are forwarded
 | Method | Path | Request | Response |
 |---|---|---|---|
 | GET | `/api/health` | none | `{"status": "ok", "model": "MODEL_FINAL.joblib"}` |
-| POST | `/api/check` | `{"url": "example.com/login"}` | `{"url": "...", "label": "phishing" or "legitimate", "confidence": 0.0-1.0}` |
+| POST | `/api/check` | `{"url": "example.com/login"}` | `{"url": "...", "label": "phishing" or "benign", "confidence": 0.0-1.0}` |
 
 Every error: `{"error": {"status": 422, "message": "Request is not valid", "details": [{"field": "body.url", "message": "..."}]}}`
 
@@ -122,3 +134,137 @@ What the assignment brief explicitly says to use or not to use. Section numbers 
 - Styling: MUI, plain HTML/CSS in JSX, or a mix
 - Input type: we take a URL (2.5)
 - A database, user accounts or file uploads are optional, but each adds the risks listed in 2.7 if we add it
+
+---
+
+## Developer guide: adding a GET or POST endpoint
+Every endpoint touches the same four files, in this order. `GET /api/health` and `POST /api/check` are working examples of each.
+
+```
+backend/app/schemas.py  ->  backend/app/main.py  ->  frontend/src/api/client.js  ->  frontend/src/pages/<Page>.jsx
+(data shape)                (route + function)       (the fetch call)               (call it and show the result)
+```
+
+### GET (read data, nothing sent in the body)
+1. **Schema** (`backend/app/schemas.py`): describe the response.
+   ```python
+   class ExampleResponse(BaseModel):
+       """What GET /api/example returns."""
+
+       model_config = ConfigDict(json_schema_extra={"examples": [{"message": "Hello"}]})
+
+       message: str
+   ```
+2. **Route** (`backend/app/main.py`): import the schema, then add the function. The decorator links it to the URL.
+   ```python
+   @app.get("/api/example", responses=ERRORS)
+   def example() -> ExampleResponse:
+       """One-line description shown on /docs."""
+       return ExampleResponse(message="Hello")
+   ```
+3. **Client** (`frontend/src/api/client.js`): one function per endpoint. Pages never call `fetch` directly.
+   ```js
+   /** GET /api/example - {message} */
+   export const getExample = () => request('/api/example')
+   ```
+4. **Page**: call it when the page loads.
+   ```jsx
+   const [example, setExample] = useState(null)
+   useEffect(() => {
+     getExample().then(setExample).catch((e) => setError(e.message))
+   }, [])
+   // in the JSX: {example && <Typography>{example.message}</Typography>}
+   ```
+
+### POST (send data in the body)
+1. **Schemas**: one for the request and one for the response. Give every input field limits; the back end must enforce them (brief 2.3).
+   ```python
+   class ExampleRequest(BaseModel):
+       """What the front end sends. Anything else in the body returns 422."""
+
+       model_config = ConfigDict(extra="forbid", json_schema_extra={"examples": [{"text": "hello"}]})
+
+       text: str = Field(min_length=1, max_length=500)
+   ```
+2. **Route**: FastAPI validates the body against the request schema before the function runs, and returns 422 in our error format if it fails.
+   ```python
+   @app.post(
+       "/api/example",
+       responses={422: {"model": ErrorResponse, "description": "The text is missing, empty or too long"}, **ERRORS},
+   )
+   def create_example(request: ExampleRequest) -> ExampleResponse:
+       """One-line description shown on /docs."""
+       return ExampleResponse(message=request.text.upper())
+   ```
+3. **Client**:
+   ```js
+   /** POST /api/example - {message} */
+   export const postExample = (text) => request('/api/example', { method: 'POST', body: JSON.stringify({ text }) })
+   ```
+4. **Page**: call it from an event (form submit), not from `useEffect`.
+   ```jsx
+   const handleSubmit = (event) => {
+     event.preventDefault()
+     postExample(text).then(setResult).catch((e) => setError(e.message))
+   }
+   ```
+
+### Checklist for every new endpoint
+- [ ] Path starts with `/api/`, so the Vite proxy forwards it (no change to `vite.config.js` needed).
+- [ ] Request and response use Pydantic schemas with an example (brief 2.2 and 3: every endpoint needs a description and an example on `/docs`).
+- [ ] Input fields have size limits (`max_length`, `ge`/`le`) and `extra="forbid"` (brief 2.3).
+- [ ] Use plain `def`, not `async def`, for anything that runs the model or other slow work: FastAPI runs plain `def` in a thread pool, so one slow request does not block the others (brief 2.7, denial of service).
+- [ ] Do not return internal details; errors go through `app/errors.py` automatically.
+- [ ] Only GET and POST are allowed by CORS (`allow_methods` in `main.py`). Add PUT, PATCH or DELETE there if a new endpoint needs one.
+- [ ] Show user input with `{value}` in JSX, never `dangerouslySetInnerHTML` (brief 2.3).
+- [ ] Restart `uvicorn` (or run it with `--reload`), then test on http://127.0.0.1:8000/docs with **Try it out**.
+- [ ] Add the endpoint to the **API contract** table above
+
+---
+
+## Developer resources
+Documentation used to build the project so far. When a source is cited in the final submission, move it to the **References** section above (Harvard style).
+
+### Back end
+- FastAPI (n.d.) *First steps*. Available at: https://fastapi.tiangolo.com/tutorial/first-steps/ (Accessed: 19 October 2026).
+- FastAPI (n.d.) *Request body*. Available at: https://fastapi.tiangolo.com/tutorial/body/ (Accessed: 19 October 2026).
+- FastAPI (n.d.) *Response model - return type*. Available at: https://fastapi.tiangolo.com/tutorial/response-model/ (Accessed: 19 October 2026).
+- FastAPI (n.d.) *Handling errors*. Available at: https://fastapi.tiangolo.com/tutorial/handling-errors/ (Accessed: 19 October 2026).
+- FastAPI (n.d.) *CORS (Cross-Origin Resource Sharing)*. Available at: https://fastapi.tiangolo.com/tutorial/cors/ (Accessed: 19 October 2026).
+- FastAPI (n.d.) *Concurrency and async / await*. Available at: https://fastapi.tiangolo.com/async/ (Accessed: 19 October 2026).
+- Pydantic (n.d.) *Fields*. Available at: https://docs.pydantic.dev/latest/concepts/fields/ (Accessed: 19 October 2026).
+- Uvicorn (n.d.) *Settings*. Available at: https://www.uvicorn.org/settings/ (Accessed: 19 October 2026).
+- scikit-learn developers (n.d.) *Model persistence*. Available at: https://scikit-learn.org/stable/model_persistence.html (Accessed: 19 October 2026).
+- joblib developers (n.d.) *Persistence*. Available at: https://joblib.readthedocs.io/en/stable/persistence.html (Accessed: 19 October 2026).
+- Python Software Foundation (n.d.) *hashlib - secure hashes and message digests*. Available at: https://docs.python.org/3/library/hashlib.html (Accessed: 19 October 2026).
+- Python Software Foundation (n.d.) *venv - creation of virtual environments*. Available at: https://docs.python.org/3/library/venv.html (Accessed: 19 October 2026).
+
+### Front end
+- React (n.d.) *Quick start*. Available at: https://react.dev/learn (Accessed: 19 October 2026).
+- React (n.d.) *Writing markup with JSX*. Available at: https://react.dev/learn/writing-markup-with-jsx (Accessed: 19 October 2026).
+- React (n.d.) *Conditional rendering*. Available at: https://react.dev/learn/conditional-rendering (Accessed: 19 October 2026).
+- React (n.d.) *Responding to events*. Available at: https://react.dev/learn/responding-to-events (Accessed: 19 October 2026).
+- React (n.d.) *Synchronizing with Effects*. Available at: https://react.dev/learn/synchronizing-with-effects (Accessed: 19 October 2026).
+- React (n.d.) *Preserving and resetting state*. Available at: https://react.dev/learn/preserving-and-resetting-state (Accessed: 19 October 2026).
+- React Router (n.d.) *Routing*. Available at: https://reactrouter.com/start/declarative/routing (Accessed: 19 October 2026).
+- Vite (n.d.) *Server options: server.proxy*. Available at: https://vite.dev/config/server-options#server-proxy (Accessed: 19 October 2026).
+- Vite (n.d.) *Static asset handling: the public directory*. Available at: https://vite.dev/guide/assets#the-public-directory (Accessed: 19 October 2026).
+- MUI (n.d.) *The sx prop*. Available at: https://mui.com/system/getting-started/the-sx-prop/ (Accessed: 19 October 2026).
+- MUI (n.d.) *Palette*. Available at: https://mui.com/material-ui/customization/palette/ (Accessed: 19 October 2026).
+- MUI (n.d.) *Dark mode*. Available at: https://mui.com/material-ui/customization/dark-mode/ (Accessed: 19 October 2026).
+- MUI (n.d.) *Composition: the component prop*. Available at: https://mui.com/material-ui/guides/composition/#component-prop (Accessed: 19 October 2026).
+- MUI (n.d.) *Tabs*. Available at: https://mui.com/material-ui/react-tabs/ (Accessed: 19 October 2026).
+- MUI (n.d.) *Text Field*. Available at: https://mui.com/material-ui/react-text-field/ (Accessed: 19 October 2026).
+- Lucide (n.d.) *Icons*. Available at: https://lucide.dev/icons/ (Accessed: 19 October 2026).
+
+### Web fundamentals
+- MDN Web Docs (n.d.) *Using the Fetch API*. Available at: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch (Accessed: 19 October 2026).
+- MDN Web Docs (n.d.) *Cross-Origin Resource Sharing (CORS)*. Available at: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS (Accessed: 19 October 2026).
+- MDN Web Docs (n.d.) *SPA (single-page application)*. Available at: https://developer.mozilla.org/en-US/docs/Glossary/SPA (Accessed: 19 October 2026).
+- MDN Web Docs (n.d.) *Inheritance (CSS)*. Available at: https://developer.mozilla.org/en-US/docs/Web/CSS/Inheritance (Accessed: 19 October 2026).
+- WebAIM (n.d.) *Contrast checker*. Available at: https://webaim.org/resources/contrastchecker/ (Accessed: 19 October 2026).
+
+### Course material
+- COS30049 Week 8 React Showcase (demo project): `fullstack-ml`, `mui`, `forms` and `jsx` (Panel) demos.
+- COS30049 Week 9 MUI React project setup guide, and additional resource for React Router.
+- COS30049 Week 10 FastAPI back end guide.

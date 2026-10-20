@@ -10,14 +10,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .errors import add_error_handlers
 from .model import load_model
-from .schemas import CheckRequest, CheckResult, ErrorResponse, HealthResponse
+from .schemas import CheckRequest, CheckResult, ErrorResponse, HealthResponse, MessageResponse
 from .settings import FRONTEND_ORIGIN
 
 model = load_model()  # loaded once at start-up, not on every request
 
 app = FastAPI(
     title="Phishing URL Detection API",
-    description="Checks whether a URL is phishing or legitimate, with the model's confidence.",
+    description="Checks whether a URL is phishing or benign, with the model's confidence.",
     version="0.1.0",
 )
 add_error_handlers(app)
@@ -50,6 +50,13 @@ def health() -> HealthResponse:
     responses={422: {"model": ErrorResponse, "description": "The URL is missing, empty or too long"}, **ERRORS},
 )
 def check(request: CheckRequest) -> CheckResult:
-    """Check one URL and return whether it is phishing or legitimate, with the model's confidence."""
+    """Check one URL and return whether it is phishing or benign, with the model's confidence."""
     prediction = model.predict(request.url)
     return CheckResult(url=request.url, label=prediction.label, confidence=prediction.confidence)
+
+@app.get("/api/message", responses=ERRORS)
+def message() -> MessageResponse:
+    """Return a fixed test message, to check the front end can read data from the back end."""
+    return MessageResponse(message="THIS IS A FASTAPI RESPONSE MESSAGE CHECK!")
+
+

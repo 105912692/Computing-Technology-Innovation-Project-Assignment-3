@@ -1,0 +1,29 @@
+/* Circular percentage ring. Progress.jsx sets --progress (e.g. 20%) and data-value (e.g. 20).
+   Colours come from the MUI theme's CSS variables (cssVariables: true in theme.js), so it follows dark mode. */
+.progress {
+    --size: 100px;
+    --color: var(--mui-palette-primary-main, #1976d2);
+    width: var(--size);
+    height: var(--size);  /* fixed height too, so a taller row can't stretch it into an oval */
+    aspect-ratio: 1;
+    flex: 0 0 auto;       /* inside a flex row: never grow or shrink */
+    align-self: center;   /* inside a flex row: sit in the vertical middle instead of stretching */
+    margin-inline: auto;  /* centre horizontally in whatever space is left over */
+    border-radius: 50%;
+    background: conic-gradient(var(--color) var(--progress, 0%), var(--mui-palette-divider, #ccc) 0);
+    display: grid;
+    place-content: center;
+}
+
+.progress::after {
+    content: attr(data-value) '%';
+    width: calc(var(--size) * 0.8);
+    aspect-ratio: 1;
+    display: grid;
+    place-content: center;
+    border-radius: 50%;
+    background: var(--mui-palette-background-paper, #fff);
+    color: var(--mui-palette-text-primary, #000);
+    font-size: calc(var(--size) * 0.3);
+    font-family: inherit;
+}

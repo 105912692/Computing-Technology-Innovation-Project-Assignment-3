@@ -23,7 +23,7 @@ class CheckResult(BaseModel):
     )
 
     url: str = Field(description="The URL that was checked")
-    label: Literal["phishing", "legitimate"] = Field(description="The model's verdict")
+    label: Literal["phishing", "benign"] = Field(description="The model's verdict")
     confidence: float = Field(ge=0, le=1, description="How sure the model is of the label, from 0 to 1")
 
 
@@ -58,3 +58,11 @@ class ErrorResponse(BaseModel):
     )
 
     error: ErrorBody
+
+
+class MessageResponse(BaseModel):
+    """A plain text message from the back end."""
+
+    model_config = ConfigDict(json_schema_extra={"examples": [{"message": "THIS IS A FASTAPI RESPONSE MESSAGE CHECK!"}]})
+
+    message: str

@@ -30,7 +30,7 @@ REGISTRY_PATH: Path = MODELS_DIR / "registry.json"
 class Prediction:
     """One verdict from the model."""
 
-    label: Literal["phishing", "legitimate"]
+    label: Literal["phishing", "benign"]
     confidence: float
 
 
@@ -78,7 +78,7 @@ class PhishingModel:
         phishing_probability = float(self.pipeline.predict_proba([url])[0][1])
         if phishing_probability >= self.threshold:
             return Prediction(label="phishing", confidence=round(phishing_probability, 4))
-        return Prediction(label="legitimate", confidence=round(1 - phishing_probability, 4))
+        return Prediction(label="benign", confidence=round(1 - phishing_probability, 4))
 
 
 def load_model() -> PhishingModel:
