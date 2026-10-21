@@ -238,6 +238,7 @@ Documentation used to build the project so far. When a source is cited in the fi
 - joblib developers (n.d.) *Persistence*. Available at: https://joblib.readthedocs.io/en/stable/persistence.html (Accessed: 19 October 2026).
 - Python Software Foundation (n.d.) *hashlib - secure hashes and message digests*. Available at: https://docs.python.org/3/library/hashlib.html (Accessed: 19 October 2026).
 - Python Software Foundation (n.d.) *venv - creation of virtual environments*. Available at: https://docs.python.org/3/library/venv.html (Accessed: 19 October 2026).
+- Python Software Foundation (n.d.) *Using Python on Windows: the Python install manager and `py` launcher*. Available at: https://docs.python.org/3/using/windows.html (Accessed: 21 October 2026).
 
 ### Front end
 - React (n.d.) *Quick start*. Available at: https://react.dev/learn (Accessed: 19 October 2026).
@@ -256,6 +257,28 @@ Documentation used to build the project so far. When a source is cited in the fi
 - MUI (n.d.) *Tabs*. Available at: https://mui.com/material-ui/react-tabs/ (Accessed: 19 October 2026).
 - MUI (n.d.) *Text Field*. Available at: https://mui.com/material-ui/react-text-field/ (Accessed: 19 October 2026).
 - Lucide (n.d.) *Icons*. Available at: https://lucide.dev/icons/ (Accessed: 19 October 2026).
+- React (n.d.) *Your first component*. Available at: https://react.dev/learn/your-first-component (Accessed: 21 October 2026).
+- React (n.d.) *Passing props to a component*. Available at: https://react.dev/learn/passing-props-to-a-component (Accessed: 21 October 2026).
+- React (n.d.) *Rendering lists*. Available at: https://react.dev/learn/rendering-lists (Accessed: 21 October 2026).
+- React (n.d.) *Keeping components pure*. Available at: https://react.dev/learn/keeping-components-pure (Accessed: 21 October 2026).
+- React (n.d.) *State: a component's memory*. Available at: https://react.dev/learn/state-a-components-memory (Accessed: 21 October 2026).
+- React (n.d.) *Sharing state between components (controlled and uncontrolled components)*. Available at: https://react.dev/learn/sharing-state-between-components (Accessed: 21 October 2026).
+- React (n.d.) *Reusing logic with custom Hooks*. Available at: https://react.dev/learn/reusing-logic-with-custom-hooks (Accessed: 21 October 2026).
+- React (n.d.) *Built-in React Hooks*. Available at: https://react.dev/reference/react/hooks (Accessed: 21 October 2026).
+- React (n.d.) *useState*. Available at: https://react.dev/reference/react/useState (Accessed: 21 October 2026).
+- React (n.d.) *useCallback*. Available at: https://react.dev/reference/react/useCallback (Accessed: 21 October 2026).
+- React (n.d.) *Rules of Hooks*. Available at: https://react.dev/reference/rules/rules-of-hooks (Accessed: 21 October 2026).
+- React (n.d.) *React calls components and Hooks*. Available at: https://react.dev/reference/rules/react-calls-components-and-hooks (Accessed: 21 October 2026).
+- React (n.d.) *lazy*. Available at: https://react.dev/reference/react/lazy (Accessed: 21 October 2026).
+- React (n.d.) *Suspense*. Available at: https://react.dev/reference/react/Suspense (Accessed: 21 October 2026).
+- React (2024) *React 19 upgrade guide: removed propTypes and defaultProps*. Available at: https://react.dev/blog/2024/04/25/react-19-upgrade-guide (Accessed: 21 October 2026).
+- Vite (n.d.) *Features: JSON*. Available at: https://vite.dev/guide/features#json (Accessed: 21 October 2026).
+- MUI (n.d.) *CSS theme variables*. Available at: https://mui.com/material-ui/customization/css-theme-variables/overview/ (Accessed: 21 October 2026).
+- MUI (n.d.) *Stack*. Available at: https://mui.com/material-ui/react-stack/ (Accessed: 21 October 2026).
+- MUI (n.d.) *Button (including IconButton)*. Available at: https://mui.com/material-ui/react-button/ (Accessed: 21 October 2026).
+- MUI (n.d.) *Progress (CircularProgress)*. Available at: https://mui.com/material-ui/react-progress/ (Accessed: 21 October 2026).
+- MUI (n.d.) *CssBaseline*. Available at: https://mui.com/material-ui/react-css-baseline/ (Accessed: 21 October 2026).
+- UI Monk (n.d.) *Ep1 - Display JSON Data in React* [video]. YouTube. Available at: https://www.youtube.com/watch?v=yC0T-_aEndw (Accessed: 21 October 2026).
 
 ### Web fundamentals
 - MDN Web Docs (n.d.) *Using the Fetch API*. Available at: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch (Accessed: 19 October 2026).
@@ -263,8 +286,41 @@ Documentation used to build the project so far. When a source is cited in the fi
 - MDN Web Docs (n.d.) *SPA (single-page application)*. Available at: https://developer.mozilla.org/en-US/docs/Glossary/SPA (Accessed: 19 October 2026).
 - MDN Web Docs (n.d.) *Inheritance (CSS)*. Available at: https://developer.mozilla.org/en-US/docs/Web/CSS/Inheritance (Accessed: 19 October 2026).
 - WebAIM (n.d.) *Contrast checker*. Available at: https://webaim.org/resources/contrastchecker/ (Accessed: 19 October 2026).
+- MDN Web Docs (n.d.) *Window: localStorage property*. Available at: https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *Crypto: randomUUID() method*. Available at: https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *Blob*. Available at: https://developer.mozilla.org/en-US/docs/Web/API/Blob (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *Blob: text() method*. Available at: https://developer.mozilla.org/en-US/docs/Web/API/Blob/text (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *URL: createObjectURL() static method*. Available at: https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL_static (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *<input type="file">*. Available at: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *<a>: the download attribute*. Available at: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#download (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *<label>*. Available at: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *inert*. Available at: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inert (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *ARIA: progressbar role*. Available at: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/progressbar_role (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *conic-gradient()*. Available at: https://developer.mozilla.org/en-US/docs/Web/CSS/gradient/conic-gradient (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *attr()*. Available at: https://developer.mozilla.org/en-US/docs/Web/CSS/attr (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *@property*. Available at: https://developer.mozilla.org/en-US/docs/Web/CSS/@property (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *JSON.parse()*. Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *Destructuring*. Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *Template literals*. Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *Truthy*. Available at: https://developer.mozilla.org/en-US/docs/Glossary/Truthy (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *Nullish coalescing operator (??)*. Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *Array.prototype.every()*. Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *Set*. Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *String.prototype.localeCompare()*. Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *How to use promises: async and await*. Available at: https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Async_JS/Promises (Accessed: 21 October 2026).
+- MDN Web Docs (n.d.) *export*. Available at: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export (Accessed: 21 October 2026).
 
 ### Course material
-- COS30049 Week 8 React Showcase (demo project): `fullstack-ml`, `mui`, `forms` and `jsx` (Panel) demos.
+- COS30049 Week 8 React Showcase (demo project):
+  - `App.jsx` and `components/layout/Layout.jsx`: routes, `<Outlet />`, lazy-loaded pages with `<Suspense>`, 404 route
+  - `components/common/ErrorBoundary.jsx` and `api/client.js`
+  - `pages/jsx/demos/Composition.jsx`: the `Panel` component (adapted in `components/common/Panel.jsx`)
+  - `pages/components/demos/Accordion.jsx`: the accordion (adapted in `components/common/Accordion/`)
+  - `pages/media/demos/ProgressRing.jsx`: SVG progress ring (compared with `components/common/Progress/`)
+  - `hooks/useLocalStorage.js` and `pages/state/demos/TodoApp.jsx`: basis for `hooks/useUrlHistory.js` (localStorage + add/edit/delete on a list)
+  - `pages/forms/demos/RegistrationForm.jsx`: the file input pattern (adapted in `components/common/FileUploader.jsx`)
+  - `fullstack-ml`, `mui` and `forms` demos
 - COS30049 Week 9 MUI React project setup guide, and additional resource for React Router.
 - COS30049 Week 10 FastAPI back end guide.
+- COS30049 Week 10 lecture: FastAPI endpoint with Pydantic models, CORS, loading the model once, SHA-256 check before `joblib.load`, plain `def` for slow work.
+- COS30049 A3 Secure Web App Sample (tutor's demonstration project): project and API structure compared; session history pattern.

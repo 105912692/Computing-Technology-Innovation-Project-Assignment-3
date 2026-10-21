@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sample-1",
+    "url": "google.com",
+    "label": "benign",
+    "confidence": 0.70,
+    "reasons": "lorem ipsum dolor sit amet consectetur adipiscing elit.",
+    "time": 2,
+    "checkedAt": "2026-10-20T03:05:00.000Z"
+  },
+  {
+    "id": "sample-2",
+    "url": "paypal-account-verify.top/login",
+    "label": "phishing",
+    "confidence": 0.85,
+    "reasons": "lorem ipsum dolor sit amet consectetur adipiscing elit.",
+    "time": 3,
+    "checkedAt": "2026-10-20T03:06:12.000Z"
+  },
+  {
+    "id": "sample-3",
+    "url": "https://www.swinburne.edu.au",
+    "label": "benign",
+    "confidence": 0.87,
+    "reasons": "lorem ipsum dolor sit amet consectetur adipiscing elit.",
+    "time": 1,
+    "checkedAt": "2026-10-20T03:07:45.000Z"
+  },
+  {
+    "id": "sample-4",
+    "url": "http://192.168.0.1/secure/update/login.php",
+    "label": "phishing",
+    "confidence": 0.99,
+    "reasons": "lorem ipsum dolor sit amet consectetur adipiscing elit.",
+    "time": 2,
+    "checkedAt": "2026-10-20T03:09:30.000Z"
+  }
+]

@@ -94,5 +94,17 @@ export default function useUrlHistory() {
   // Replace everything (e.g. after importing a URL_History.json file)
   const replaceHistory = useCallback((list) => setHistory(toList(list)), [])
 
-  return { history, addEntry, getEntry, updateEntry, removeEntry, clearHistory, replaceHistory }
+  // Add entries from an imported file to the current list.
+// Entries whose id is already in the list are skipped, so uploading the same file twice adds nothing.
+  const mergeHistory = useCallback((list) => {
+    setHistory((current) => {
+      const existingIds = new Set(current.map((entry) => entry.id))
+      const added = toList(list).filter((entry) => !existingIds.has(entry.id))
+      return [...added, ...current]
+        .sort((a, b) => b.checkedAt.localeCompare(a.checkedAt))   // newest first (ISO dates sort as text)
+        .slice(0, MAX_ENTRIES)
+    })
+  }, [])
+
+  return { history, addEntry, getEntry, updateEntry, removeEntry, clearHistory, replaceHistory, mergeHistory }
 }

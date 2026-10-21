@@ -2,13 +2,16 @@
 import { useEffect, useState } from 'react'
 import { Alert, Box, Button, Stack, Tab, Tabs, TextField, Typography } from '@mui/material'
 import DownloadIcon from '@mui/icons-material/Download'
-import { CalendarDays, CheckCheck, CircleAlert } from 'lucide-react'
+import { CalendarDays, CheckCheck, CircleAlert, DatabaseBackupIcon, File } from 'lucide-react'
 
 import { getHealth, getMessage } from '../api/client.js'
 import Panel from '../components/common/Panel.jsx'
 import Progress from '../components/common/Progress/Progress.jsx'
 import Result from '../components/common/Result/Result.jsx'
 import ResultDetails from '../components/common/Result/ResultDetails.jsx'
+import sampleHistory from '../data/sampleHistory.json'   // sample checks until real results are stored (Stage 3)
+import FileUploader from '../components/common/FileUploader.jsx'
+import useUrlHistory from '../hooks/useUrlHistory.js' 
 
 // One tab's content. Hidden unless its tab is selected (based on the MUI Tabs example).
 function TabPanel({ children, value, index }) {
@@ -30,6 +33,7 @@ function tabProps(index) {
 }
 
 export default function HomePage() {
+  const { history, replaceHistory, mergeHistory } = useUrlHistory()
   const [health, setHealth] = useState(null)
   const [error, setError] = useState(null)
   const [tab, setTab] = useState(0)
@@ -61,6 +65,30 @@ export default function HomePage() {
   const resultColour = (value) => (value > 30 ? 'error' : 'success')
 
   const resultTag = (value) => (value > 30 ? 'Phishing' : 'Benign')
+
+  // The list shown in each tab: 0 = all, 1 = benign only, 2 = phishing only
+
+  const shown = history.length > 0 ? history : sampleHistory 
+  const tabLists = [
+    // History,
+    // History.filter((entry) => entry.label === 'benign'),
+    // History.filter((entry) => entry.label === 'phishing'),
+
+    shown,
+    shown.filter((entry) => entry.label === 'benign'),
+    shown.filter((entry) => entry.label === 'phishing'),
+  ]
+
+  // Turns the current list into a JSON file and downloads it as URL_History.json
+  function downloadHistory() {
+    const json = JSON.stringify(history, null, 2)                  // the list as nicely spaced JSON text
+    const blob = new Blob([json], { type: 'application/json' })          // a file in memory
+    const link = document.createElement('a')                             // a temporary download link
+    link.href = URL.createObjectURL(blob)
+    link.download = 'URL_History.json'                                   // the saved file's name
+    link.click()
+    URL.revokeObjectURL(link.href)                                       // free the memory afterwards
+  }
 
   return (
     <Stack spacing={2}>
@@ -99,16 +127,11 @@ export default function HomePage() {
       {/* upload */}
 
       {/* Download button */}
-      <Button
-        variant="contained"
-        color="primary"
-        startIcon={<DownloadIcon />}
-        component="a"
-        href="/downloads/downloadTest.txt" // Path to your file
-        download
-      >
-      Download Test Txt
-    </Button>
+      <Button variant="contained" startIcon={<DownloadIcon />} onClick={downloadHistory}>
+        Download history (JSON)
+      </Button>
+
+        <FileUploader onUpload={(data) => mergeHistory(data)} />
 
     {/* Panel example: title, icon, actions, children and footer are all optional slots */}
       <Panel
@@ -135,24 +158,14 @@ export default function HomePage() {
             <Tab label="Phishing URLs" {...tabProps(2)} />
           </Tabs>
         </Box>
-        <TabPanel value={tab} index={0}>
-          <Result
-            name={UrlTag}
-            label="benign"
-            confidence={progressValue}
-            time={resultLaps}
-            reasons="lorem ipsum dolor sit amet ..."
-          />
-          <Result
-            name={UrlTag}
-            label="phishing"
-            confidence={31}
-            time={resultLaps}
-            reasons="lorem ipsum dolor sit amet ..."
-          />
+        {/* Each tab shows the same list, filtered by label: one Result card per entry */}
+        {tabLists.map((list, index) => (
+          <TabPanel key={index} value={tab} index={index}>
+            {list.length === 0
+              ? <Typography color="text.secondary">No URLs here yet.</Typography>
+              : list.map((entry) => <Result key={entry.id} data={entry} />)}
           </TabPanel>
-        <TabPanel value={tab} index={1}>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit error nobis veritatis, eligendi saepe molestias nesciunt ullam exercitationem recusandae atque, necessitatibus quas odit culpa porro inventore possimus ab natus aliquid!</TabPanel>
-        <TabPanel value={tab} index={2}>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Enim, earum? Culpa odit neque possimus soluta, temporibus esse eos nisi facere deserunt nostrum cum, modi officia illo, harum amet natus molestias.</TabPanel>
+        ))}
       </Box>
     </Stack>
   )
