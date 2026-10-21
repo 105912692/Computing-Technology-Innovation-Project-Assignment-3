@@ -67,6 +67,7 @@ Every error: `{"error": {"status": 422, "message": "Request is not valid", "deta
 - `backend/models/registry.json`: the file name, its SHA-256 hash (checked before loading) and the threshold.
 - A URL is labelled phishing when its phishing probability is at or above `threshold` (currently 0.3). Change it in `registry.json` and restart the back end.
 - If the model file is replaced, update `sha256` too, or the back end will refuse to start.
+- **Known limitation: the model is sensitive to how a URL is written.** It reads the URL text only (character n-grams) and never visits the site. In two of the three training datasets almost every benign URL starts with `https://www.` and almost no phishing URL does, so the model partly learned that prefix as a sign of safety. As a result, short addresses typed without `https://` (e.g. `google.com`) may be flagged as phishing, and adding `https://www.` lowers a phishing URL's score. URLs are sent to the model exactly as typed; rewriting them was measured and made phishing detection much worse. The form shows a tip when a URL has no `http(s)://`.
 
 ## Architecture
 TODO: diagram (browser -> React -> FastAPI -> model)

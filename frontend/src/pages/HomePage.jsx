@@ -1,10 +1,11 @@
 // src/pages/HomePage.jsx - index page ("/").
 import { useEffect, useState } from 'react'
-import { Alert, Box, Button, Stack, Tab, Tabs, TextField, Typography } from '@mui/material'
+
+import { Alert, Box, Button, CircularProgress, Stack, Tab, Tabs, TextField, Typography } from '@mui/material'
 import DownloadIcon from '@mui/icons-material/Download'
 import { CalendarDays, CheckCheck, CircleAlert, DatabaseBackupIcon, File } from 'lucide-react'
 
-import { getHealth, getMessage } from '../api/client.js'
+import { checkUrl, getHealth, getMessage } from '../api/client.js'
 import Panel from '../components/common/Panel.jsx'
 import Progress from '../components/common/Progress/Progress.jsx'
 import Result from '../components/common/Result/Result.jsx'
@@ -33,40 +34,61 @@ function tabProps(index) {
 }
 
 export default function HomePage() {
-  const { history, replaceHistory, mergeHistory } = useUrlHistory()
+  const { history, replaceHistory, mergeHistory, addEntry } = useUrlHistory()
   const [health, setHealth] = useState(null)
   const [error, setError] = useState(null)
   const [tab, setTab] = useState(0)
   const [text, setText] = useState('')
   const [apiMessage, setApiMessage] = useState(null)
+  const [checking, setChecking] = useState(false)
+  const [checkError, setCheckError] = useState('')
+  const [result, setResult] = useState(null)
+
+  const MAX_URL_LENGTH = 2048
+
+  // Usability hint only (the URL sent to the model is NOT changed): the model is most reliable on complete links,
+  // because of how its training data was collected (see README "Model"). Shown while the typed text has no http(s)://.
+  const missingScheme = text.trim() !== '' && !/^[a-z][a-z0-9+.-]*:\/\//i.test(text.trim())
 
   useEffect(() => {
     getHealth().then(setHealth).catch((e) => setError(e.message))
     getMessage().then((data) => setApiMessage(data.message)).catch((e) => setError(e.message))
   }, [])
 
+  function validate(value) {
+    if (!value.trim()) return 'Enter a URL to check.'
+    if (value.length > MAX_URL_LENGTH) return `The URL must be ${MAX_URL_LENGTH} characters or fewer.`
+    return ''
+  }
+
   const handleChange = (event) => {
-    setText(event.target.value);
-  };
+    setText(event.target.value)
+    setCheckError('')                                  // clear the old message while typing
+  }
 
-  const handleClick = () => {
-    alert(`Button clicked! Current text: ${text}`);
-  };
+  async function handleSubmit(event) {
+    event.preventDefault()                             // stop the browser reloading the page
+    const problem = validate(text)
+    if (problem) return setCheckError(problem)
 
-  const progressValue = 30;
+    setChecking(true)
+    setCheckError('')
+    const started = performance.now()
+    try {
+      const checked = await checkUrl(text.trim())      // POST /api/check → { url, label, confidence }
+      const seconds = Math.round((performance.now() - started) / 100) / 10   // e.g. 0.3
+      setResult(checked)
+      addEntry({ ...checked, time: seconds, reasons: '' })   // saved to history + localStorage
+      setText('')
+    } catch (error) {
+      setCheckError(error.message)                     // e.g. "Request is not valid" or "Cannot reach the server"
+    } finally {
+      setChecking(false)
+    }
+  }
 
-  const UrlTag = 'google.com';
-
-  const resultLaps = 2;
-
-  // Returns the palette name for a result ('error' = red, 'success' = green). Used in three formats below:
-  // 'error.main' (MUI sx), 'error.contrastText' (readable text on it) and var(--mui-palette-error-main) (CSS).
-  // Placeholder rule for now; with a real result use: result.label === 'phishing' ? 'error' : 'success'
-  const resultColour = (value) => (value > 30 ? 'error' : 'success')
-
-  const resultTag = (value) => (value > 30 ? 'Phishing' : 'Benign')
-
-  // The list shown in each tab: 0 = all, 1 = benign only, 2 = phishing only
+  const latest = result ? history[0] : null
+  const latestColour = latest?.label === 'phishing' ? 'error' : 'success'
 
   const shown = history.length > 0 ? history : sampleHistory 
   const tabLists = [
@@ -102,27 +124,40 @@ export default function HomePage() {
       {/* API test message */}
       {apiMessage && <Alert severity="info">{apiMessage}</Alert>}
 
-      {/*Inputs */}
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', width: '100%'}}>
-        <div style={{ flex: '0 0 80%', bgcolor: 'background.paper' }}>
-          <input
-            id="text-input"
-            type="text" 
-            value={text} 
-            onChange={handleChange} 
-            placeholder="Type something..."
-            style={{ width: '100%', height: '100%'}}
+      {/* URL input */}
+      <Box component="form" onSubmit={handleSubmit} noValidate>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25} sx={{ alignItems: { sm: 'flex-start' } }}>
+          <TextField
+            id="url-input"
+            label="URL to check"
+            placeholder="e.g. paypal-account-verify.top/login"
+            value={text}
+            onChange={handleChange}
+            error={Boolean(checkError)}
+            helperText={
+              checkError ||
+              (missingScheme
+                ? 'Tip: paste the full link (starting with https://). Short addresses like google.com are less reliable.'
+                : ' ')                                      // ' ' keeps the space so the layout doesn't jump
+            }
+            fullWidth
+            disabled={checking}
+            slotProps={{
+              htmlInput: { maxLength: MAX_URL_LENGTH },
+              formHelperText: { sx: { color: !checkError && missingScheme ? 'warning.main' : undefined } },
+            }}
           />
-          </div>
-        <div style={{ flex: '1',  bgcolor: 'action.hover' }}>
-          <button 
-            onClick={handleClick}
-            style={{ width: '100%', height: '100%'}}
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={checking}
+            startIcon={checking ? <CircularProgress size={18} color="inherit" /> : null}
+            sx={{ minWidth: { sm: 140 }, height: 56 }}     // 56px = same height as the TextField
           >
-            Click Me
-          </button>
-          </div>
-      </div>
+            {checking ? 'Checking…' : 'Check'}
+          </Button>
+        </Stack>
+      </Box>
 
       {/* upload */}
 
@@ -133,21 +168,23 @@ export default function HomePage() {
 
         <FileUploader onUpload={(data) => mergeHistory(data)} />
 
-    {/* Panel example: title, icon, actions, children and footer are all optional slots */}
+    {/* Latest result - the most prominent element (brief 2.1). Only shown after a check. */}
+    {latest && (
       <Panel
-        title={`Result - ${resultTag(progressValue)}`}
-        headerColor={`${resultColour(progressValue)}.main`}
-        headerTextColor={`${resultColour(progressValue)}.contrastText`}
+        title={`Result - ${latest.label === 'phishing' ? 'Phishing' : 'Benign'}`}
+        headerColor={`${latestColour}.main`}
+        headerTextColor={`${latestColour}.contrastText`}
         icon={<CircleAlert size={18} aria-hidden="true" />}
       >
         <ResultDetails
-          address={UrlTag}
-          time={resultLaps}
-          reasons="lorem ipsum dolor sit amet ..."
-          confidence={progressValue}
-          colour={resultColour(progressValue)}
+          address={latest.url}
+          time={latest.time}
+          reasons={latest.reasons || 'No extra reasons available yet.'}
+          confidence={Math.round(latest.confidence * 100)}
+          colour={latestColour}
         />
       </Panel>
+    )}
 
       {/* Tabs */}
       <Box sx={{ width: '100%' }}>
