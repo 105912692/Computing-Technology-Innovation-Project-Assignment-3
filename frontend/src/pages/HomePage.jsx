@@ -28,13 +28,21 @@ function TabPanel({ children, value, index }) {
   )
 }
 
+// DEVELOPMENT ONLY - set to false (or delete this and sampleHistory.json) before submission.
+// true  = while nothing is saved, the tabs show the made-up example checks from src/data/sampleHistory.json
+//         (handy for styling cards and building the charts without checking URLs each time).
+// false = the tabs show only real saved checks ("No URLs here yet." when empty).
+// The samples are also never shown in a production build (`npm run build`), even if this is left true.
+const historyDevToggle = false
+const SHOW_SAMPLE_HISTORY = historyDevToggle && import.meta.env.DEV
+
 // Links each tab to its panel for screen readers.
 function tabProps(index) {
   return { id: `home-tab-${index}`, 'aria-controls': `home-tabpanel-${index}` }
 }
 
 export default function HomePage() {
-  const { history, replaceHistory, mergeHistory, addEntry } = useUrlHistory()
+  const { history, replaceHistory, mergeHistory, addEntry, clearHistory } = useUrlHistory()
   const [health, setHealth] = useState(null)
   const [error, setError] = useState(null)
   const [tab, setTab] = useState(0)
@@ -43,6 +51,7 @@ export default function HomePage() {
   const [checking, setChecking] = useState(false)
   const [checkError, setCheckError] = useState('')
   const [result, setResult] = useState(null)
+  const [isVisible, setIsVisible] = useState(true)
 
   const MAX_URL_LENGTH = 2048
 
@@ -92,7 +101,7 @@ export default function HomePage() {
   const latest = result ? history.find((entry) => entry.id === result.id) ?? null : null
   const latestColour = latest?.label === 'phishing' ? 'error' : 'success'
 
-  const shown = history.length > 0 ? history : sampleHistory 
+  const shown = history.length === 0 && SHOW_SAMPLE_HISTORY ? sampleHistory : history   // samples only in development
   const tabLists = [
     // History,
     // History.filter((entry) => entry.label === 'benign'),
@@ -113,6 +122,26 @@ export default function HomePage() {
     link.click()
     URL.revokeObjectURL(link.href)                                       // free the memory afterwards
   }
+
+  // Labels for each tab, used by "Clear" (index matches the tab order)
+  const TAB_LABELS = [null, 'benign', 'phishing']        // null = ALL URLs
+  const TAB_NAMES = ['all', 'benign', 'phishing']
+
+  function clearAll() {
+    if (window.confirm('Delete ALL saved checks? This cannot be undone.')) clearHistory()
+  }
+
+  // Removes only the entries shown in the current tab (on "ALL URLs" this is the same as clearAll)
+  function clearSection(tabIndex) {
+    const label = TAB_LABELS[tabIndex]
+    if (!label) return clearAll()
+    if (window.confirm(`Delete all ${label} checks? This cannot be undone.`)) {
+      replaceHistory(history.filter((entry) => entry.label !== label))   // keep everything else
+    }
+  }
+
+  // Only real saved checks can be cleared (not the sample list shown when history is empty)
+  const sectionCount = TAB_LABELS[tab] ? history.filter((e) => e.label === TAB_LABELS[tab]).length : history.length
 
   return (
     <Stack spacing={2}>
@@ -186,6 +215,26 @@ export default function HomePage() {
           colour={latestColour}
         />
       </Panel>
+    )}
+
+    {/* Clear buttons - only active when there are saved checks to delete */}
+    <Stack direction="row" spacing={1}>
+      <Button color="error" variant="outlined" onClick={clearAll} disabled={history.length === 0}>
+        Clear all
+      </Button>
+      {/* Only on the Benign / Phishing tabs - on ALL URLs it would do the same as "Clear all" */}
+      {tab !== 0 && (
+        <Button color="error" variant="text" onClick={() => clearSection(tab)} disabled={sectionCount === 0}>
+          Clear {TAB_NAMES[tab]}
+        </Button>
+      )}
+    </Stack>
+
+    {/* While nothing is saved, the tabs show sample checks - say so, so the disabled buttons make sense */}
+    {history.length === 0 && SHOW_SAMPLE_HISTORY && (
+      <Typography variant="body2" color="text.secondary">
+        Showing example checks. They are not saved and cannot be cleared - check a URL to start your own history.
+      </Typography>
     )}
 
       {/* Tabs */}
