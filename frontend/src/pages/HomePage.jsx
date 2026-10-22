@@ -34,7 +34,7 @@ function TabPanel({ children, value, index }) {
 //         (handy for styling cards and building the charts without checking URLs each time).
 // false = the tabs show only real saved checks ("No URLs here yet." when empty).
 // The samples are also never shown in a production build (`npm run build`), even if this is left true.
-const historyDevToggle = false
+const historyDevToggle = true
 const SHOW_SAMPLE_HISTORY = historyDevToggle && import.meta.env.DEV
 
 // Links each tab to its panel for screen readers.
@@ -86,8 +86,8 @@ export default function HomePage() {
     const started = performance.now()
     try {
       const checked = await checkUrl(text.trim())      // POST /api/check → { url, label, confidence, phishing_probability }
-      const seconds = Math.round((performance.now() - started) / 100) / 10   // e.g. 0.3
-      const entry = addEntry({ ...checked, time: seconds, reasons: '' })   // saved to history + localStorage
+      const ms = Math.round(performance.now() - started)        // e.g. 37
+      const entry = addEntry({ ...checked, time: ms, reasons: '' })  // saved to history + localStorage
       setResult(entry)                                 // remember THIS entry (it has the id and time) for the Panel
       setText('')
     } catch (error) {
@@ -211,7 +211,7 @@ export default function HomePage() {
         <ResultDetails
           address={latest.url}
           time={latest.time}
-          reasons={latest.reasons || 'No extra reasons available yet.'}
+          reasons={latest.reasons}
           risk={getPhishingRiskPercent(latest)}
           colour={latestColour}
         />

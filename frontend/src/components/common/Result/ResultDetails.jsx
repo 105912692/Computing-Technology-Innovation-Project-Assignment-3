@@ -5,6 +5,9 @@ import Progress from '../Progress/Progress.jsx'
 
 // `risk` is the phishing probability as a percentage (0-100): the same scale for every result,
 // so a higher number always means more phishing-like (see utils/phishingRisk.js).
+
+const formatTime = (ms) => (ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`)
+
 export default function ResultDetails({ address, time, reasons, risk, colour = 'primary' }) {
   return (
     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 1.25, alignItems: 'center', width: '100%', minWidth: 0 }}>
@@ -16,11 +19,11 @@ export default function ResultDetails({ address, time, reasons, risk, colour = '
         <br />
         Phishing risk: {risk}%
         <br />
-        Time for result: {time}
+        Time for result: {time == null ? '--' : formatTime(time)}
         <br />
         Reasons for result:
         <br />
-        {reasons}
+        {reasons || 'No extra reasons available yet.'}
       </Typography>
 
       <Progress value={risk} label="Phishing risk" color={`var(--mui-palette-${colour}-main)`} />
