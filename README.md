@@ -7,7 +7,7 @@ backend/                 FastAPI back end
   app/main.py            the API routes (GET /api/health, POST /api/check), CORS, model loaded once
   app/schemas.py         request and response contracts (Pydantic)
   app/errors.py          one JSON format for every error
-  app/model.py           loads the model (hash checked) and labels URLs
+  app/ml_model.py        loads the ML model (hash checked) and labels URLs
   models/                MODEL_FINAL.joblib and registry.json (file, SHA-256, threshold)
   app/settings.py        settings read from .env
 frontend/                React front end (Vite)

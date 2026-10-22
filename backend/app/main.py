@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .errors import add_error_handlers
-from .model import load_model
+from .ml_model import load_model
 from .schemas import CheckRequest, CheckResult, ErrorResponse, HealthResponse, MessageResponse
 from .settings import FRONTEND_ORIGIN
 
