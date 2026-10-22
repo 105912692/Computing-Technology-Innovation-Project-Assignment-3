@@ -77,8 +77,8 @@ export default function HomePage() {
     try {
       const checked = await checkUrl(text.trim())      // POST /api/check → { url, label, confidence }
       const seconds = Math.round((performance.now() - started) / 100) / 10   // e.g. 0.3
-      setResult(checked)
-      addEntry({ ...checked, time: seconds, reasons: '' })   // saved to history + localStorage
+      const entry = addEntry({ ...checked, time: seconds, reasons: '' })   // saved to history + localStorage
+      setResult(entry)                                 // remember THIS entry (it has the id and time) for the Panel
       setText('')
     } catch (error) {
       setCheckError(error.message)                     // e.g. "Request is not valid" or "Cannot reach the server"
@@ -87,7 +87,9 @@ export default function HomePage() {
     }
   }
 
-  const latest = result ? history[0] : null
+  // The entry from the most recent check, found by its id - so uploads, sorting or new entries can't swap it
+  // for another one. If it has been deleted from the history, the Panel is hidden.
+  const latest = result ? history.find((entry) => entry.id === result.id) ?? null : null
   const latestColour = latest?.label === 'phishing' ? 'error' : 'success'
 
   const shown = history.length > 0 ? history : sampleHistory 

@@ -34,8 +34,8 @@ export default function Result({ data }) {
   return (
     <Box sx={{ border: 2, borderColor: colours.border, borderRadius: 3, overflow: 'hidden', margin: 3 }}>
       <Box sx={{ display: 'flex', p: 1.25, bgcolor: colours.background, color: colours.text }}>
-        <Box sx={{ flex: 1, p: 1.25, overflowWrap: 'anywhere' }}>{url}</Box>
-        <Box sx={{ flex: 1, p: 1.25, textAlign: 'right' }}>{label}</Box>
+        <Box sx={{ flex: '1 1 0', minWidth: 0, p: 1.25, overflowWrap: 'anywhere' }}>{url}</Box>   {/* wraps long URLs */}
+        <Box sx={{ flex: '0 0 auto', p: 1.25, textAlign: 'right' }}>{label}</Box>                 {/* only as wide as the label */}
       </Box>
 
       <Accordion items={items}/>

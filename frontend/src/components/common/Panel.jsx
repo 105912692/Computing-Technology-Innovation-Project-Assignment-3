@@ -50,7 +50,7 @@ export default function Panel({ title, icon, actions, footer, children, headerCo
         {actions && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>{actions}</Box>}
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, p: 1.75, flex: 1 }}>{children}</Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, p: 1.75, flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>{children}</Box>
 
       {footer && (
         <Box

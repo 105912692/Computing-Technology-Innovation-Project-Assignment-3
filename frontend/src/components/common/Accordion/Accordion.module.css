@@ -24,4 +24,4 @@
 }
 .panel[data-open='true'] { grid-template-rows: 1fr; }
 .panelInner { overflow: hidden; }
-.content { padding: 12px 16px 16px; color: var(--mui-palette-text-secondary); }
+.content { padding: 12px 16px 16px; color: var(--mui-palette-text-secondary); min-width: 0; overflow-wrap: anywhere; }
