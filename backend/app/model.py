@@ -31,7 +31,8 @@ class Prediction:
     """One verdict from the model."""
 
     label: Literal["phishing", "benign"]
-    confidence: float
+    confidence: float             # how sure the model is of the label (phishing: p, benign: 1 - p)
+    phishing_probability: float   # p itself: the same 0-1 scale for every result
 
 
 def file_sha256(path: Path) -> str:
@@ -73,12 +74,13 @@ class PhishingModel:
             url (str): The URL to check.
 
         Returns:
-            Prediction: The label and the model's probability for that label.
+            Prediction: The label, the model's confidence in that label, and the phishing probability.
         """
         phishing_probability = float(self.pipeline.predict_proba([url])[0][1])
+        probability = round(phishing_probability, 4)
         if phishing_probability >= self.threshold:
-            return Prediction(label="phishing", confidence=round(phishing_probability, 4))
-        return Prediction(label="benign", confidence=round(1 - phishing_probability, 4))
+            return Prediction(label="phishing", confidence=probability, phishing_probability=probability)
+        return Prediction(label="benign", confidence=round(1 - phishing_probability, 4), phishing_probability=probability)
 
 
 def load_model() -> PhishingModel:

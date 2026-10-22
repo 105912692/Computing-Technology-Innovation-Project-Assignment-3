@@ -2,8 +2,9 @@
 // Lives only in this browser (React state + localStorage). It is never sent to the back end.
 //
 // One entry:
-//   { id, url, label: 'phishing' | 'benign', confidence: 0-1, reasons, time, checkedAt }
+//   { id, url, label: 'phishing' | 'benign', confidence: 0-1, phishingProbability: 0-1, reasons, time, checkedAt }
 import { useCallback, useEffect, useState } from 'react'
+import { getPhishingProbability } from '../utils/phishingRisk.js'
 
 const STORAGE_KEY = 'urlHistory'
 const MAX_ENTRIES = 200      // keeps localStorage small (it holds about 5 MB per site)
@@ -21,6 +22,8 @@ function toEntry(raw) {
     url,
     label: LABELS.includes(raw.label) ? raw.label : 'benign',
     confidence: Number.isFinite(confidence) ? Math.min(1, Math.max(0, confidence)) : 0,
+    // Same 0-1 scale for every entry; worked out from label + confidence for older entries/files without it
+    phishingProbability: getPhishingProbability({ ...raw, label: LABELS.includes(raw.label) ? raw.label : 'benign' }),
     reasons: typeof raw.reasons === 'string' ? raw.reasons.slice(0, 5000) : '',
     time: Number.isFinite(Number(raw.time)) ? Number(raw.time) : null,
     checkedAt: typeof raw.checkedAt === 'string' ? raw.checkedAt : new Date().toISOString(),

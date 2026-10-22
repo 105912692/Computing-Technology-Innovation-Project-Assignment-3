@@ -19,12 +19,19 @@ class CheckResult(BaseModel):
     """The verdict for one URL."""
 
     model_config = ConfigDict(
-        json_schema_extra={"examples": [{"url": "example.com/login", "label": "phishing", "confidence": 0.85}]}
+        json_schema_extra={"examples": [
+            {"url": "example.com/login", "label": "phishing", "confidence": 0.85, "phishing_probability": 0.85}
+        ]}
     )
 
     url: str = Field(description="The URL that was checked")
     label: Literal["phishing", "benign"] = Field(description="The model's verdict")
     confidence: float = Field(ge=0, le=1, description="How sure the model is of the label, from 0 to 1")
+    phishing_probability: float = Field(
+        ge=0, le=1,
+        description="The model's probability that the URL is phishing, from 0 to 1 (same scale for every result; "
+                    "at or above the threshold means phishing)",
+    )
 
 
 class HealthResponse(BaseModel):

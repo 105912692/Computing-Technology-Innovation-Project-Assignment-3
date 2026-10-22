@@ -1,4 +1,4 @@
-// src/components/common/Progress/Progress.jsx - circular percentage ring (e.g. the model's confidence).
+// src/components/common/Progress/Progress.jsx - circular percentage ring (e.g. the phishing risk).
 import './Progress.css'
 
 /**

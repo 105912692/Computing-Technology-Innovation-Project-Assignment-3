@@ -2,6 +2,7 @@
 import { Box } from '@mui/material'
 import Accordion from '../Accordion/Accordion.jsx'
 import ResultDetails from './ResultDetails.jsx'
+import { getPhishingRiskPercent } from '../../../utils/phishingRisk.js'
 
 const COLOURS = {
   phishing:   { border: 'error.main',   background: 'error.main',   text: 'error.contrastText',   ring: 'error' },
@@ -12,10 +13,10 @@ const resultColours = (label) => COLOURS[label] ?? NEUTRAL
 
 /**
  * One saved check, passed in as a single `data` object (one entry from the history list):
- *   { id, url, label: 'phishing' | 'benign', confidence: 0-1, reasons, time, checkedAt }
+ *   { id, url, label: 'phishing' | 'benign', confidence: 0-1, phishingProbability: 0-1, reasons, time, checkedAt }
  */
 export default function Result({ data }) {
-  const { url, label, confidence, time, reasons } = data   // pull the fields out of the entry
+  const { url, label, time, reasons } = data   // pull the fields out of the entry
   const colours = resultColours(label)
   const items = [{
     id: 'details',
@@ -25,7 +26,7 @@ export default function Result({ data }) {
         address={url}
         time={time}
         reasons={reasons}
-        confidence={Math.round(confidence * 100)}   // 0.85 -> 85 for the ring
+        risk={getPhishingRiskPercent(data)}          // phishing probability, 0.47 -> 47
         colour={colours.ring}
       />
     ),

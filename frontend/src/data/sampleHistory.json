@@ -3,7 +3,8 @@
     "id": "sample-1",
     "url": "google.com",
     "label": "benign",
-    "confidence": 0.70,
+    "confidence": 0.8,
+    "phishingProbability": 0.2,
     "reasons": "lorem ipsum dolor sit amet consectetur adipiscing elit.",
     "time": 2,
     "checkedAt": "2026-10-20T03:05:00.000Z"
@@ -13,6 +14,7 @@
     "url": "paypal-account-verify.top/login",
     "label": "phishing",
     "confidence": 0.85,
+    "phishingProbability": 0.85,
     "reasons": "lorem ipsum dolor sit amet consectetur adipiscing elit.",
     "time": 3,
     "checkedAt": "2026-10-20T03:06:12.000Z"
@@ -22,6 +24,7 @@
     "url": "https://www.swinburne.edu.au",
     "label": "benign",
     "confidence": 0.87,
+    "phishingProbability": 0.13,
     "reasons": "lorem ipsum dolor sit amet consectetur adipiscing elit.",
     "time": 1,
     "checkedAt": "2026-10-20T03:07:45.000Z"
@@ -31,6 +34,7 @@
     "url": "http://192.168.0.1/secure/update/login.php",
     "label": "phishing",
     "confidence": 0.99,
+    "phishingProbability": 0.99,
     "reasons": "lorem ipsum dolor sit amet consectetur adipiscing elit.",
     "time": 2,
     "checkedAt": "2026-10-20T03:09:30.000Z"

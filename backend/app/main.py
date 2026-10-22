@@ -52,7 +52,12 @@ def health() -> HealthResponse:
 def check(request: CheckRequest) -> CheckResult:
     """Check one URL and return whether it is phishing or benign, with the model's confidence."""
     prediction = model.predict(request.url)
-    return CheckResult(url=request.url, label=prediction.label, confidence=prediction.confidence)
+    return CheckResult(
+        url=request.url,
+        label=prediction.label,
+        confidence=prediction.confidence,
+        phishing_probability=prediction.phishing_probability,
+    )
 
 @app.get("/api/message", responses=ERRORS)
 def message() -> MessageResponse:

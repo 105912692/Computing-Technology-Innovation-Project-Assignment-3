@@ -19,6 +19,9 @@ function isValidEntry(item) {
     typeof item.url === 'string' && item.url.length <= 2048 &&
     (item.label === 'benign' || item.label === 'phishing') &&
     typeof item.confidence === 'number' && item.confidence >= 0 && item.confidence <= 1 &&
+    // optional: files saved before phishingProbability was added don't have it (it is worked out on load)
+    (item.phishingProbability === undefined ||
+      (typeof item.phishingProbability === 'number' && item.phishingProbability >= 0 && item.phishingProbability <= 1)) &&
     typeof item.reasons === 'string' &&
     (typeof item.time === 'number' || item.time === null) &&        // downloads can have time: null
     typeof item.checkedAt === 'string' && !Number.isNaN(Date.parse(item.checkedAt))

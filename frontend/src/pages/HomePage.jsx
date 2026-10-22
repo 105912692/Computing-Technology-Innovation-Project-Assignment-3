@@ -13,6 +13,7 @@ import ResultDetails from '../components/common/Result/ResultDetails.jsx'
 import sampleHistory from '../data/sampleHistory.json'   // sample checks until real results are stored (Stage 3)
 import FileUploader from '../components/common/FileUploader.jsx'
 import useUrlHistory from '../hooks/useUrlHistory.js' 
+import { getPhishingRiskPercent } from '../utils/phishingRisk.js'
 
 // One tab's content. Hidden unless its tab is selected (based on the MUI Tabs example).
 function TabPanel({ children, value, index }) {
@@ -84,7 +85,7 @@ export default function HomePage() {
     setCheckError('')
     const started = performance.now()
     try {
-      const checked = await checkUrl(text.trim())      // POST /api/check → { url, label, confidence }
+      const checked = await checkUrl(text.trim())      // POST /api/check → { url, label, confidence, phishing_probability }
       const seconds = Math.round((performance.now() - started) / 100) / 10   // e.g. 0.3
       const entry = addEntry({ ...checked, time: seconds, reasons: '' })   // saved to history + localStorage
       setResult(entry)                                 // remember THIS entry (it has the id and time) for the Panel
@@ -211,7 +212,7 @@ export default function HomePage() {
           address={latest.url}
           time={latest.time}
           reasons={latest.reasons || 'No extra reasons available yet.'}
-          confidence={Math.round(latest.confidence * 100)}
+          risk={getPhishingRiskPercent(latest)}
           colour={latestColour}
         />
       </Panel>
