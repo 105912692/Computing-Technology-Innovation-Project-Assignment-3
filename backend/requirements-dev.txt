@@ -1,0 +1,4 @@
+# Only needed to run the automated tests (pytest). Install with: pip install -r requirements-dev.txt
+-r requirements.txt
+pytest==9.1.1
+httpx2==2.16.0   # HTTP client used by FastAPI's TestClient

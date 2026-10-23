@@ -8,3 +8,9 @@ scipy==1.18.1
 joblib==1.6.0
 threadpoolctl==3.7.0
 narwhals==2.26.0
+sqlalchemy==2.1.6
+psycopg[binary]==3.3.6
+tzdata==2026.5 ; sys_platform == "win32"
+pwdlib[argon2]==0.3.1
+argon2-cffi==25.1.0
+pyjwt==2.15.1

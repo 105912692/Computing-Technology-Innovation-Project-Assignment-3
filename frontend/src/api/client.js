@@ -43,8 +43,5 @@ async function request(path, options = {}) {
 /** GET /api/health - {status, model} */
 export const getHealth = () => request('/api/health')
 
-/** GET /api/message - {message} */
-export const getMessage = () => request('/api/message')
-
 /** POST /api/check - {url, label, confidence, phishing_probability} */
 export const checkUrl = (url) => request('/api/check', { method: 'POST', body: JSON.stringify({ url }) })

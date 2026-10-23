@@ -5,7 +5,7 @@ import { Alert, Box, Button, CircularProgress, Stack, Tab, Tabs, TextField, Typo
 import DownloadIcon from '@mui/icons-material/Download'
 import { CalendarDays, CheckCheck, CircleAlert, DatabaseBackupIcon, File } from 'lucide-react'
 
-import { checkUrl, getHealth, getMessage } from '../api/client.js'
+import { checkUrl, getHealth } from '../api/client.js'
 import Panel from '../components/common/Panel.jsx'
 import Progress from '../components/common/Progress/Progress.jsx'
 import Result from '../components/common/Result/Result.jsx'
@@ -48,7 +48,6 @@ export default function HomePage() {
   const [error, setError] = useState(null)
   const [tab, setTab] = useState(0)
   const [text, setText] = useState('')
-  const [apiMessage, setApiMessage] = useState(null)
   const [checking, setChecking] = useState(false)
   const [checkError, setCheckError] = useState('')
   const [result, setResult] = useState(null)
@@ -62,7 +61,6 @@ export default function HomePage() {
 
   useEffect(() => {
     getHealth().then(setHealth).catch((e) => setError(e.message))
-    getMessage().then((data) => setApiMessage(data.message)).catch((e) => setError(e.message))
   }, [])
 
   function validate(value) {
@@ -152,9 +150,6 @@ export default function HomePage() {
       {!health && !error && <Alert severity="info">Connecting to the back end...</Alert>}
       {health && <Alert severity="success">Back end connected (model: {health.model})</Alert>}
       {error && <Alert severity="error">{error}</Alert>}
-
-      {/* API test message */}
-      {apiMessage && <Alert severity="info">{apiMessage}</Alert>}
 
       {/* URL input */}
       <Box component="form" onSubmit={handleSubmit} noValidate>
