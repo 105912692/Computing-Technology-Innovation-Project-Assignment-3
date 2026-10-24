@@ -1,0 +1,101 @@
+/* src/components/common/DropdownMenu/DropdownMenu.module.css
+   Based on the Week 8 React Showcase DropdownMenu.module.css. The demo's own variables (--color-surface ...) are
+   swapped for MUI's theme variables (var(--mui-palette-...), see theme.js) so the menu follows light/dark mode. */
+
+.wrapper {
+  position: relative; /* the menu is positioned relative to this box */
+  display: inline-flex;
+}
+
+/* The button that opens the menu. Plain, so whatever is inside it (e.g. an Avatar) decides the look. */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.trigger:hover {
+  background: rgba(255, 255, 255, 0.12); /* sits on the coloured AppBar */
+}
+.trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1300; /* above MUI's AppBar (1100) and the page content */
+  min-width: 230px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--mui-palette-background-paper);
+  border: 1px solid var(--mui-palette-divider);
+  border-radius: 8px;
+  box-shadow: var(--mui-shadows-8);
+  animation: menuIn 120ms ease-out;
+}
+/* For a button at the right edge of the screen (like the header avatar): line up with its right edge instead */
+.alignRight {
+  left: auto;
+  right: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--mui-palette-text-primary);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+.item svg {
+  color: var(--mui-palette-text-secondary);
+}
+.item:hover,
+.item:focus-visible {
+  background: var(--mui-palette-action-hover);
+  outline: none;
+}
+.danger,
+.danger svg {
+  color: var(--mui-palette-error-main);
+}
+.danger:hover,
+.danger:focus-visible {
+  background: rgba(var(--mui-palette-error-mainChannel) / 0.12);
+}
+.divider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--mui-palette-divider);
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Respect the "reduce motion" setting */
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+}

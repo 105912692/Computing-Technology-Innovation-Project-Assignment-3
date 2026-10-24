@@ -6,10 +6,14 @@
 import { lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
 
+
 import Layout from './components/layout/Layout.jsx'   // not lazy: it is on screen for every page
 
 const HomePage = lazy(() => import('./pages/HomePage.jsx'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'))
+const LoginPage = lazy(() => import('./pages/login.jsx'))
+const SignUpPage = lazy(() => import('./pages/signup.jsx'))
+const AccountPage = lazy(() => import('./pages/account.jsx'))
 
 export default function App() {
   return (
@@ -18,6 +22,11 @@ export default function App() {
       <Route element={<Layout />}>
         {/* Default address: HomePage */}
         <Route index element={<HomePage />} />
+
+        {/* Account pages: opened from the account menu in Layout.jsx (navigate('/login') etc.) */}
+        <Route path="login" element={<LoginPage />} />
+        <Route path="signup" element={<SignUpPage />} />
+        <Route path="account" element={<AccountPage />} />
 
         {/* More pages go here, e.g. <Route path="documentation" element={<DocumentationPage />} /> */}
 

@@ -1,11 +1,15 @@
 // src/components/layout/Layout.jsx - header, navigation and footer around every page
 import { Suspense } from 'react'
-import { Outlet, Link as RouterLink } from 'react-router-dom'
-import { AppBar, Box, Button, CircularProgress, Container, IconButton, Toolbar, Tooltip, Typography } from '@mui/material'
+import { Outlet, Link as RouterLink, useNavigate } from 'react-router-dom'
+import { AppBar, Avatar, Box, Button, CircularProgress, Container, IconButton, Toolbar, Tooltip, Typography } from '@mui/material'
 import { useColorScheme } from '@mui/material/styles'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
+import { ArrowLeftRight, LogIn, LogOut, UserCog, UserPlus } from 'lucide-react'
+import defaultAvatar from '../../assets/images/Default_pfp.svg'
 
+import DropdownMenu from '../common/DropdownMenu/DropdownMenu.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 import ErrorBoundary from '../common/ErrorBoundary.jsx'
 
 // Shown while a page's code is downloading (usually only a moment, and only on the first visit)
@@ -19,8 +23,52 @@ function PageLoader() {
 
 export default function Layout() {
   const { mode, systemMode, setMode } = useColorScheme()
+  const navigate = useNavigate()   // hooks are called here, at the top of the component, never inside other functions
+  const { user, logout } = useAuth()
   const isDark = (mode === 'system' ? systemMode : mode) === 'dark'   // 'system' follows the OS setting
   const label = isDark ? 'Switch to light theme' : 'Switch to dark theme'
+
+  // ---------- Account menu (avatar in the header) ----------
+  // Each function runs when its menu item is chosen. Which items show depends on isLoggedIn (below).
+  function handleManageAccount() {
+    navigate('/account')
+    // the account page shows the user from AuthContext (TODO there: delete account)
+  }
+  function handleLogin() {
+    navigate('/login')   // the URL path, not the file: App.jsx maps /login to the login page
+    // the login page calls login() in AuthContext (POST /api/login, then GET /api/me)
+  }
+  function handleSignUp() {
+    navigate('/signup')
+    // the sign-up page calls signUp() (POST /api/users), then logs in
+  }
+  function handleSwitchAccount() {
+    logout()             // forget the current token, then log in as someone else
+    navigate('/login')
+  }
+  function handleLogout() {
+    logout()             // forget the token (context/AuthContext.jsx)
+    navigate('/')        // back to the home page
+  }
+
+  const accountItems = [
+    { id: 'manage', label: 'Manage account', icon: UserCog, onSelect: handleManageAccount },
+    { id: 'login', label: 'Log in', icon: LogIn, onSelect: handleLogin },
+    { id: 'signup', label: 'Sign up', icon: UserPlus, onSelect: handleSignUp },
+    { id: 'switch', label: 'Switch account', icon: ArrowLeftRight, onSelect: handleSwitchAccount },
+    { id: 'divider-1', divider: true },
+    { id: 'logout', label: 'Log out', icon: LogOut, onSelect: handleLogout, danger: true },
+  ]
+
+  const isLoggedIn = Boolean(user)   // from AuthContext: set by the login page, cleared by log out or when the token expires
+  const LOGGED_OUT = ['login', 'signup']
+  const accountItemsShow = accountItems.filter((item) =>
+    isLoggedIn ? !LOGGED_OUT.includes(item.id) : LOGGED_OUT.includes(item.id)
+  )
+
+  // Logged out: Log in, Sign up.
+  // Logged in: Manage account, Switch account, the divider, Log out.
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar position="static" component="header">
@@ -34,6 +82,10 @@ export default function Layout() {
               {isDark ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
           </Tooltip>
+          {/* Account menu: the avatar is the button; the items and their functions are defined above */}
+          <DropdownMenu label={user ? `Account options (logged in as ${user.user_name})` : 'Account options'} items={accountItemsShow} align="right">
+            <Avatar src={defaultAvatar} alt="" sx={{ width: 32, height: 32 }} />
+          </DropdownMenu>
         </Toolbar>
       </AppBar>
 
