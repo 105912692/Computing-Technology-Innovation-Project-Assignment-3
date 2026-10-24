@@ -75,3 +75,20 @@ export const logIn = (email, password) =>
 
 /** GET /api/me (needs login) - {user_id, user_name, user_email} */
 export const getMe = (token) => request('/api/me', { token })
+
+// ---------- Saved history (needs login; each user only ever sees their own rows) ----------
+
+/** GET /api/history - [{history_id, user_id, data_saved: {id, url, label, ...}}, ...] newest first */
+export const getHistory = (token) => request('/api/history', { token })
+
+/** POST /api/history - saves one check: {history_id, user_id, data_saved} */
+export const saveHistory = (savedCheck, token) =>
+  request('/api/history', { method: 'POST', body: JSON.stringify({ data_saved: savedCheck }), token })
+
+/** DELETE /api/history/{historyId} - deletes one saved check (404 if it is not this user's) */
+export const deleteHistoryEntry = (historyId, token) =>
+  request(`/api/history/${historyId}`, { method: 'DELETE', token })
+
+/** DELETE /api/history - deletes all of this user's saved checks */
+export const clearSavedHistory = (token) => request('/api/history', { method: 'DELETE', token })
+

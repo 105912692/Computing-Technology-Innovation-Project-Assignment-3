@@ -34,7 +34,7 @@ function TabPanel({ children, value, index }) {
 //         (handy for styling cards and building the charts without checking URLs each time).
 // false = the tabs show only real saved checks ("No URLs here yet." when empty).
 // The samples are also never shown in a production build (`npm run build`), even if this is left true.
-const historyDevToggle = true
+const historyDevToggle = false
 const SHOW_SAMPLE_HISTORY = historyDevToggle && import.meta.env.DEV
 
 // Links each tab to its panel for screen readers.
