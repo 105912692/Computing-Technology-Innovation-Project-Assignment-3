@@ -13,7 +13,9 @@ import ResultDetails from '../components/common/Result/ResultDetails.jsx'
 import sampleHistory from '../data/sampleHistory.json'   // sample checks until real results are stored (Stage 3)
 import FileUploader from '../components/common/FileUploader.jsx'
 import useUrlHistory from '../hooks/useUrlHistory.js' 
-import { getPhishingRiskPercent } from '../utils/phishingRisk.js'
+import { getPhishingProbability, getPhishingRiskPercent } from '../utils/phishingRisk.js'
+import RiskGauge from '../components/charts/RiskGauge.jsx'
+import RiskBars from '../components/charts/RiskBars.jsx'
 
 // One tab's content. Hidden unless its tab is selected (based on the MUI Tabs example).
 // prefix keeps the ids unique when there is more than one row of tabs on the page.
@@ -49,6 +51,7 @@ export default function HomePage() {
   const [error, setError] = useState(null)
   const [tab, setTab] = useState(0)
   const [section, setSection] = useState(0)   // parent tabs: 0 = Results, 1 = Visualisations
+  const [vizTab, setVizTab] = useState(0)     // Visualisations tabs: 0 = Current URL Data, 1 = Overall URLs Data
   const [text, setText] = useState('')
   const [checking, setChecking] = useState(false)
   const [checkError, setCheckError] = useState('')
@@ -210,6 +213,8 @@ export default function HomePage() {
           time={latest.time}
           reasons={latest.reasons}
           risk={getPhishingRiskPercent(latest)}
+          confidence={Math.round((latest.confidence ?? 0) * 100)}
+          label={latest.label}
           colour={latestColour}
         />
       </Panel>
@@ -268,8 +273,25 @@ export default function HomePage() {
         </TabPanel>
 
         <TabPanel value={section} index={1} prefix="section">
-          {/* Visualisations: empty for now */}
-          <Typography color="text.secondary">No Visualisations here yet.</Typography>
+          {/* Visualisations: one chart for the current result, one comparing every saved check (brief 2.1) */}
+          <Box sx={{ width: '100%' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs value={vizTab} onChange={(event, newTab) => setVizTab(newTab)} aria-label="Choose a visualisation">
+                <Tab label="Current URL Data" {...tabProps(0, 'viz')} />
+                <Tab label="Overall URLs Data" {...tabProps(1, 'viz')} />
+              </Tabs>
+            </Box>
+            <TabPanel value={vizTab} index={0} prefix="viz">
+              {latest
+                ? <RiskGauge url={latest.url} risk={getPhishingProbability(latest)} label={latest.label} />
+                : <Typography color="text.secondary">No current URL data to visualise.</Typography>}
+            </TabPanel>
+            <TabPanel value={vizTab} index={1} prefix="viz">
+              {shown.length === 0
+                ? <Typography color="text.secondary">No URLs to visualise yet.</Typography>
+                : <RiskBars entries={shown} />}
+            </TabPanel>
+          </Box>
         </TabPanel>
       </Box>
     </Stack>

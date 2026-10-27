@@ -14,6 +14,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'))
 const LoginPage = lazy(() => import('./pages/login.jsx'))
 const SignUpPage = lazy(() => import('./pages/signup.jsx'))
 const AccountPage = lazy(() => import('./pages/account.jsx'))
+const DocumentsPage = lazy(() => import('./pages/Documents.jsx'))
 
 export default function App() {
   return (
@@ -28,7 +29,10 @@ export default function App() {
         <Route path="signup" element={<SignUpPage />} />
         <Route path="account" element={<AccountPage />} />
 
-        {/* More pages go here, e.g. <Route path="documentation" element={<DocumentationPage />} /> */}
+        {/* Documents page: opened from the document icon in the header (Layout.jsx) */}
+        <Route path="documents" element={<DocumentsPage />} />
+
+        {/* More pages go here */}
 
         {/* Any other address: 404 page */}
         <Route path="*" element={<NotFoundPage />} />
