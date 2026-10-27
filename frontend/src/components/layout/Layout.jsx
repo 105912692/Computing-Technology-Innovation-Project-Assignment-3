@@ -1,11 +1,11 @@
 // src/components/layout/Layout.jsx - header, navigation and footer around every page
 import { Suspense } from 'react'
 import { Outlet, Link as RouterLink, useNavigate } from 'react-router-dom'
-import { AppBar, Avatar, Box, Button, CircularProgress, Container, IconButton, Toolbar, Tooltip, Typography } from '@mui/material'
-import { useColorScheme } from '@mui/material/styles'
+import { AppBar, Avatar, Box, Button, CircularProgress, Container, IconButton, Toolbar, Tooltip, Typography, useMediaQuery } from '@mui/material'
+import { useColorScheme, useTheme } from '@mui/material/styles'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
-import { ArrowLeftRight, LogIn, LogOut, UserCog, UserPlus } from 'lucide-react'
+import { ArrowLeftRight, FileText, LogIn, LogOut, Menu, Moon, Sun, UserCog, UserPlus } from 'lucide-react'
 import defaultAvatar from '../../assets/images/Default_pfp.svg'
 
 import DropdownMenu from '../common/DropdownMenu/DropdownMenu.jsx'
@@ -27,6 +27,7 @@ export default function Layout() {
   const { user, logout } = useAuth()
   const isDark = (mode === 'system' ? systemMode : mode) === 'dark'   // 'system' follows the OS setting
   const label = isDark ? 'Switch to light theme' : 'Switch to dark theme'
+  const isMobile = useMediaQuery(useTheme().breakpoints.down('sm'))   // phones (under 600px): one menu instead of the icons
 
   // ---------- Account menu (avatar in the header) ----------
   // Each function runs when its menu item is chosen. Which items show depends on isLoggedIn (below).
@@ -69,6 +70,16 @@ export default function Layout() {
   // Logged out: Log in, Sign up.
   // Logged in: Manage account, Switch account, the divider, Log out.
 
+  // ---------- Phone menu ----------
+  // On phones the Documents icon, theme toggle and avatar menu are all in ONE dropdown:
+  // the page items first, then a line, then the account items in their own section (same items as the avatar menu).
+  const mobileItems = [
+    { id: 'documents', label: 'Documents', icon: FileText, onSelect: () => navigate('/documents') },
+    { id: 'theme', label, icon: isDark ? Sun : Moon, onSelect: () => setMode(isDark ? 'light' : 'dark') },
+    { id: 'divider-account', divider: true },
+    ...accountItemsShow,
+  ]
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar position="static" component="header">
@@ -77,15 +88,30 @@ export default function Layout() {
             Phishing URL Detection
           </Typography>
           <Button color="inherit" component={RouterLink} to="/">Home</Button>
-          <Tooltip title={label}>
-            <IconButton color="inherit" onClick={() => setMode(isDark ? 'light' : 'dark')} aria-label={label}>
-              {isDark ? <LightModeIcon /> : <DarkModeIcon />}
-            </IconButton>
-          </Tooltip>
-          {/* Account menu: the avatar is the button; the items and their functions are defined above */}
-          <DropdownMenu label={user ? `Account options (logged in as ${user.user_name})` : 'Account options'} items={accountItemsShow} align="right">
-            <Avatar src={defaultAvatar} alt="" sx={{ width: 32, height: 32 }} />
-          </DropdownMenu>
+          {isMobile ? (
+            /* Phones: everything else in one dropdown (mobileItems above) */
+            <DropdownMenu label={user ? `Menu (logged in as ${user.user_name})` : 'Menu'} items={mobileItems} align="right">
+              <Menu size={24} aria-hidden="true" />
+            </DropdownMenu>
+          ) : (
+            <>
+              {/* Documents page (pages/Documents.jsx) */}
+              <Tooltip title="Documents">
+                <IconButton color="inherit" component={RouterLink} to="/documents" aria-label="Documents">
+                  <FileText size={22} aria-hidden="true" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={label}>
+                <IconButton color="inherit" onClick={() => setMode(isDark ? 'light' : 'dark')} aria-label={label}>
+                  {isDark ? <LightModeIcon /> : <DarkModeIcon />}
+                </IconButton>
+              </Tooltip>
+              {/* Account menu: the avatar is the button; the items and their functions are defined above */}
+              <DropdownMenu label={user ? `Account options (logged in as ${user.user_name})` : 'Account options'} items={accountItemsShow} align="right">
+                <Avatar src={defaultAvatar} alt="" sx={{ width: 32, height: 32 }} />
+              </DropdownMenu>
+            </>
+          )}
         </Toolbar>
       </AppBar>
 

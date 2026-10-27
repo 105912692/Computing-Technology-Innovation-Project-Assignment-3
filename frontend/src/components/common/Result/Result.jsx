@@ -27,6 +27,8 @@ export default function Result({ data }) {
         time={time}
         reasons={reasons}
         risk={getPhishingRiskPercent(data)}          // phishing probability, 0.47 -> 47
+        confidence={Math.round((data.confidence ?? 0) * 100)}   // how sure of its label, 0.87 -> 87 (shown for benign only)
+        label={label}
         colour={colours.ring}
       />
     ),
