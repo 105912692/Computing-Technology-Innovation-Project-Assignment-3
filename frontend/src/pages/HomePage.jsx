@@ -16,13 +16,14 @@ import useUrlHistory from '../hooks/useUrlHistory.js'
 import { getPhishingRiskPercent } from '../utils/phishingRisk.js'
 
 // One tab's content. Hidden unless its tab is selected (based on the MUI Tabs example).
-function TabPanel({ children, value, index }) {
+// prefix keeps the ids unique when there is more than one row of tabs on the page.
+function TabPanel({ children, value, index, prefix = 'home' }) {
   return (
     <div
       role="tabpanel"
       hidden={value !== index}
-      id={`home-tabpanel-${index}`}
-      aria-labelledby={`home-tab-${index}`}
+      id={`${prefix}-tabpanel-${index}`}
+      aria-labelledby={`${prefix}-tab-${index}`}
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
@@ -38,8 +39,8 @@ const historyDevToggle = false
 const SHOW_SAMPLE_HISTORY = historyDevToggle && import.meta.env.DEV
 
 // Links each tab to its panel for screen readers.
-function tabProps(index) {
-  return { id: `home-tab-${index}`, 'aria-controls': `home-tabpanel-${index}` }
+function tabProps(index, prefix = 'home') {
+  return { id: `${prefix}-tab-${index}`, 'aria-controls': `${prefix}-tabpanel-${index}` }
 }
 
 export default function HomePage() {
@@ -47,6 +48,7 @@ export default function HomePage() {
   const [health, setHealth] = useState(null)
   const [error, setError] = useState(null)
   const [tab, setTab] = useState(0)
+  const [section, setSection] = useState(0)   // parent tabs: 0 = Results, 1 = Visualisations
   const [text, setText] = useState('')
   const [checking, setChecking] = useState(false)
   const [checkError, setCheckError] = useState('')
@@ -213,18 +215,20 @@ export default function HomePage() {
       </Panel>
     )}
 
-    {/* Clear buttons - only active when there are saved checks to delete */}
-    <Stack direction="row" spacing={1}>
-      <Button color="error" variant="outlined" onClick={clearAll} disabled={history.length === 0}>
-        Clear all
-      </Button>
-      {/* Only on the Benign / Phishing tabs - on ALL URLs it would do the same as "Clear all" */}
-      {tab !== 0 && (
-        <Button color="error" variant="text" onClick={() => clearSection(tab)} disabled={sectionCount === 0}>
-          Clear {TAB_NAMES[tab]}
+    {/* Clear buttons - only on the Results tab, and only active when there are saved checks to delete */}
+    {section === 0 && (
+      <Stack direction="row" spacing={1}>
+        <Button color="error" variant="outlined" onClick={clearAll} disabled={history.length === 0}>
+          Clear all
         </Button>
-      )}
-    </Stack>
+        {/* Only on the Benign / Phishing tabs - on ALL URLs it would do the same as "Clear all" */}
+        {tab !== 0 && (
+          <Button color="error" variant="text" onClick={() => clearSection(tab)} disabled={sectionCount === 0}>
+            Clear {TAB_NAMES[tab]}
+          </Button>
+        )}
+      </Stack>
+    )}
 
     {/* While nothing is saved, the tabs show sample checks - say so, so the disabled buttons make sense */}
     {history.length === 0 && SHOW_SAMPLE_HISTORY && (
@@ -233,23 +237,40 @@ export default function HomePage() {
       </Typography>
     )}
 
-      {/* Tabs */}
+      {/* Parent tabs: Results (the URL list tabs below) and Visualisations */}
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={tab} onChange={(event, newTab) => setTab(newTab)} aria-label="Home sections">
-            <Tab label="ALL URLs" {...tabProps(0)} />
-            <Tab label="Benign URLs" {...tabProps(1)} />
-            <Tab label="Phishing URLs" {...tabProps(2)} />
+          <Tabs value={section} onChange={(event, newSection) => setSection(newSection)} aria-label="Results and visualisations">
+            <Tab label="Results" {...tabProps(0, 'section')} />
+            <Tab label="Visualisations" {...tabProps(1, 'section')} />
           </Tabs>
         </Box>
-        {/* Each tab shows the same list, filtered by label: one Result card per entry */}
-        {tabLists.map((list, index) => (
-          <TabPanel key={index} value={tab} index={index}>
-            {list.length === 0
-              ? <Typography color="text.secondary">No URLs here yet.</Typography>
-              : list.map((entry) => <Result key={entry.id} data={entry} />)}
-          </TabPanel>
-        ))}
+
+        <TabPanel value={section} index={0} prefix="section">
+          {/* Results: the URL list tabs */}
+          <Box sx={{ width: '100%' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs value={tab} onChange={(event, newTab) => setTab(newTab)} aria-label="Filter results">
+                <Tab label="ALL URLs" {...tabProps(0)} />
+                <Tab label="Benign URLs" {...tabProps(1)} />
+                <Tab label="Phishing URLs" {...tabProps(2)} />
+              </Tabs>
+            </Box>
+            {/* Each tab shows the same list, filtered by label: one Result card per entry */}
+            {tabLists.map((list, index) => (
+              <TabPanel key={index} value={tab} index={index}>
+                {list.length === 0
+                  ? <Typography color="text.secondary">No URLs here yet.</Typography>
+                  : list.map((entry) => <Result key={entry.id} data={entry} />)}
+              </TabPanel>
+            ))}
+          </Box>
+        </TabPanel>
+
+        <TabPanel value={section} index={1} prefix="section">
+          {/* Visualisations: empty for now */}
+          <Typography color="text.secondary">No Visualisations here yet.</Typography>
+        </TabPanel>
       </Box>
     </Stack>
   )
