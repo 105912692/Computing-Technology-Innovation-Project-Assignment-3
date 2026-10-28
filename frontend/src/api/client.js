@@ -76,6 +76,9 @@ export const logIn = (email, password) =>
 /** GET /api/me (needs login) - {user_id, user_name, user_email} */
 export const getMe = (token) => request('/api/me', { token })
 
+/** DELETE /api/me (needs login) - deletes the account and all its saved checks (204, no body) */
+export const deleteMe = (token) => request('/api/me', { method: 'DELETE', token })
+
 // ---------- Saved history (needs login; each user only ever sees their own rows) ----------
 
 /** GET /api/history - [{history_id, user_id, data_saved: {id, url, label, ...}}, ...] newest first */

@@ -14,6 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from . import db_models
+from .body_limit import BodySizeLimit
 from .auth import CurrentUser, check_password, create_access_token, hash_password
 from .database import Base, engine, get_db
 from .errors import add_error_handlers
@@ -21,7 +22,7 @@ from .ml_model import load_model
 from .rate_limit import RateLimiter
 from .schemas import (CheckRequest, CheckResult, ErrorResponse, HealthResponse, HistoryCreate, HistoryOut,
                       LoginRequest, TokenResponse, UserCreate, UserOut)
-from .settings import FRONTEND_ORIGIN, LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_SECONDS
+from .settings import FRONTEND_ORIGIN, LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_SECONDS, MAX_REQUEST_BYTES
 
 model = load_model()  # loaded once at start-up, not on every request
 Base.metadata.create_all(bind=engine)  # creates user_data and history_data if they do not exist yet (never drops data)
@@ -42,6 +43,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["Content-Type", "Authorization"],
 )
+
+# Request size limit: bodies over MAX_REQUEST_BYTES get 413 before they are read (added last = runs first)
+app.add_middleware(BodySizeLimit, max_bytes=MAX_REQUEST_BYTES)
 
 
 def error_doc(code: int, description: str, message: str, details: list[dict[str, str]] | None = None) -> dict:

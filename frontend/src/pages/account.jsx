@@ -1,12 +1,32 @@
 // src/pages/account.jsx - the logged-in user's account page (shown at /account, see App.jsx).
-// TODO: "Delete account" button -> DELETE /api/me (through authRequest), then logout()
-import { Link as RouterLink } from 'react-router-dom'
-import { Alert, Button, Stack, Typography } from '@mui/material'
+import { useState } from 'react'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { Alert, Button, CircularProgress, Stack, Typography } from '@mui/material'
 
+import { deleteMe } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
 export default function AccountPage() {
-  const { user, expiresAt, logout } = useAuth()
+  const { user, expiresAt, logout, authRequest } = useAuth()
+  const navigate = useNavigate()
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+
+  // Delete account: DELETE /api/me (through authRequest, so a 401 logs out), then log out and show the login page.
+  // The back end deletes the account's saved checks too (cascade); copies in this browser's history are kept.
+  async function handleDeleteAccount() {
+    if (!window.confirm('Delete your account and all checks saved to it? This cannot be undone.')) return
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      await authRequest(deleteMe)
+      logout('Your account has been deleted.')   // shown on the login page
+      navigate('/login')
+    } catch (error) {
+      setDeleteError(error.message)              // e.g. "Cannot reach the server"
+      setDeleting(false)
+    }
+  }
 
   if (!user) {
     return (
@@ -29,6 +49,19 @@ export default function AccountPage() {
         </Typography>
       )}
       <Button variant="outlined" color="error" onClick={() => logout()} sx={{ alignSelf: 'flex-start' }}>Log out</Button>
+
+      {/* Danger zone: permanently delete the account */}
+      {deleteError && <Alert severity="error">{deleteError}</Alert>}
+      <Button
+        variant="contained"
+        color="error"
+        onClick={handleDeleteAccount}
+        disabled={deleting}
+        startIcon={deleting ? <CircularProgress size={18} color="inherit" /> : null}
+        sx={{ alignSelf: 'flex-start' }}
+      >
+        {deleting ? 'Deleting…' : 'Delete account'}
+      </Button>
     </Stack>
   )
 }

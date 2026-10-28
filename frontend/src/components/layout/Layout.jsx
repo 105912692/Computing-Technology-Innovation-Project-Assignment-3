@@ -126,7 +126,7 @@ export default function Layout() {
       </Container>
 
       <Box component="footer" sx={{ py: 3, textAlign: 'center' }}>
-        <Typography variant="body2" color="text.secondary">COS30049 Assignment 3</Typography>
+        <Typography variant="body2" color="text.secondary">COS30049 Assignment 3 • 2026 • Session 09 Group 3</Typography>
       </Box>
     </Box>
   )

@@ -21,3 +21,7 @@ ACCESS_TOKEN_MINUTES: int = 30  # how long a login lasts before the user must lo
 # Login rate limit (against password guessing): at most this many attempts per client IP per window
 LOGIN_MAX_ATTEMPTS: int = 5
 LOGIN_WINDOW_SECONDS: int = 60
+
+# Largest request body accepted (bytes), checked before the body is read (app/body_limit.py). The biggest real request
+# is one saved check (a few KB), so 64 KB leaves plenty of room while still stopping huge bodies.
+MAX_REQUEST_BYTES: int = 64 * 1024
